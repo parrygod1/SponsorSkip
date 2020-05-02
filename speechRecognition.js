@@ -4,29 +4,27 @@
 // @grant none
 // ==/UserScript==
 
-var recognition = null;
 
-if ((window.location.href.indexOf("youtube") > -1) && (window.location.href.indexOf(".com/watch?v=") <= -1)) {
+if ((window.location.href.indexOf("youtube") > -1)) {
   window.SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
   recognition = new window.SpeechRecognition();
-  console.log("not watching");
-  
+
+  if (window.location.href.indexOf(".com/watch?v=") <= -1)
+    console.log("not watching");
+
   window.addEventListener('yt-page-data-updated', function () {
     if (window.location.href.indexOf(".com/watch?v=") > -1) {
-      	console.log("Changed to watch");
-      	execute();
-      } else{
-      	recognition.stop();
+      console.log("Changed to watch");
+      execute();
+    } else if (recognition != null) {
+      recognition.stop();
     }
   });
-} else if (window.location.href.indexOf(".com/watch?v=") > 1){
-  recognition.stop();
-  execute();
-}
 
-function execute() {
-  if (window.location.href.indexOf(".com/watch?v=") > -1) {
-    const blacklist = ["our sponsor",
+  function execute() {
+
+    const blacklist = [
+      "our sponsor",
       "sponsors",
       "the sponsor of this video",
       "this video was made possible by",
@@ -63,6 +61,8 @@ function execute() {
       "from our link",
       "value for it's price",
       "no extra charge",
+      "reliable VPN",
+      "get better deals",
 
       "brilliant",
       "simply sofas",
@@ -79,11 +79,12 @@ function execute() {
       "Ray Connor's",
       "wear icons",
       "e25 earbuds",
-      "shadow legends"];
+      "shadow legends",
+      "PIA"];
 
-    
+
     var video = document.querySelector("video");
-    
+
 
     /*document.getElementById("top-level-buttons").innerHTML += "<div id='sponsorskip-info'></div>";
     const infoBox = document.getElementById("sponsorskip-info");
@@ -117,21 +118,11 @@ function execute() {
 
       }
 
-      recognition.onsoundstart = e => {
-        console.log("audio capture started");
-
-      }
-
-      recognition.onsoundend = e => {
-        //console.log("audio capture ended");
-      }
-
       recognition.onend = function (event) {
         //Fired when the speech recognition service has disconnected.
-        if (window.location.href.indexOf(".com/watch?v=") > -1){
-        	recognition.start();
-        } else {
-          location.reload();
+        if (window.location.href.indexOf(".com/watch?v=") > -1) {
+          recognition.start();
+          clearInterval(resetVoiceRecog);
         }
         console.log('SpeechRecognition.onend');
       }
@@ -141,20 +132,6 @@ function execute() {
         //console.log('SpeechRecognition.onnomatch');
       }
 
-      recognition.onsoundstart = function (event) {
-        //Fired when any sound — recognisable speech or not — has been detected.
-        //console.log('SpeechRecognition.onsoundstart');
-      }
-
-      recognition.onsoundend = function (event) {
-        //Fired when any sound — recognisable speech or not — has stopped being detected.
-        //console.log('SpeechRecognition.onsoundend');
-      }
-
-      recognition.onspeechstart = function (event) {
-        //Fired when sound that is recognised by the speech recognition service as speech has been detected.
-        //console.log('SpeechRecognition.onspeechstart');
-      }
       recognition.onstart = function (event) {
         //Fired when the speech recognition service has begun listening to incoming audio with intent to recognize grammars associated with the current SpeechRecognition.
         startTime = Date.now();
@@ -164,8 +141,11 @@ function execute() {
       recognition.start();
     }
     run();
+
   }
+
 }
+
 
 
 
